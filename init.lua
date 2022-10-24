@@ -165,14 +165,6 @@ vim.keymap.set({ 'n' }, '<Tab>', '<cmd>bn<CR>')
 vim.keymap.set({ 'n' }, '<S-Tab>', '<cmd>bp<CR>')
 vim.keymap.set({ 'n' }, '<space>bd', '<cmd>bd<CR>')
 
--- Telescope
-vim.keymap.set({ 'n' }, '<Space>ff', '<cmd>lua require("plugin.telescope").find_project()<CR>')
-vim.keymap.set({ 'n' }, '<Space>fb', '<cmd>Telescope buffers theme=get_dropdown<CR>')
-vim.keymap.set({ 'n' }, '<Space>fh', '<cmd>Telescope help_tags<CR>')
-vim.keymap.set({ 'n' }, '<Space>fo', '<cmd>Telescope oldfiles<CR>')
-vim.keymap.set({ 'n' }, '<Space>fw', '<cmd>Telescope live_grep<CR>')
-vim.keymap.set({ 'n' }, '<Space>fd', '<cmd>lua require("plugin.telescope").find_dotfiles()<CR>')
-
 -- Command
 vim.keymap.set({ 'i' }, 'jk', '<Esc>')
 vim.keymap.set({ 'c' }, '<C-h>', '<Left>')
@@ -288,7 +280,7 @@ vim.keymap.set('n', '<leader>/', function()
   })
 end, { desc = '[/] Fuzzily search in current buffer]' })
 
-vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
+vim.keymap.set('n', '<leader>ff', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
 vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
 vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
 vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
