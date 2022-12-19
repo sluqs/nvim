@@ -7,21 +7,9 @@ if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
   vim.cmd [[packadd packer.nvim]]
 end
 
-  require('packer').startup(function(use)
-  use 'wbthomason/packer.nvim'                                                         -- Package manager
-  use 'tpope/vim-fugitive'                                                             -- Git commands in nvim
-  use 'tpope/vim-rhubarb'                                                              -- Fugitive-companion to interact with github
-  use 'tpope/vim-surround'
-
-  use 'lewis6991/gitsigns.nvim'
-  use 'numToStr/Comment.nvim'                                                          -- "gc" to comment visual regions/lines
-
-  use { -- Highlight, edit, and navigate code
-    'nvim-treesitter/nvim-treesitter',
-    run = function()
-      pcall(require('nvim-treesitter.install').update { with_sync = true })
-    end,
-  }
+require('packer').startup(function(use)
+  -- Package manager
+  use 'wbthomason/packer.nvim'
 
   use { -- LSP Configuration & Plugins
     'neovim/nvim-lspconfig',
@@ -40,27 +28,45 @@ end
     requires = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip' },
   }
 
-  use 'nvim-lualine/lualine.nvim' -- Fancier statusline
-  use 'lukas-reineke/indent-blankline.nvim'                                            -- Add indentation guides even on blank lines
-  use 'tpope/vim-sleuth'                                                               -- Detect tabstop and shiftwidth automatically
+  use { -- Highlight, edit, and navigate code
+    'nvim-treesitter/nvim-treesitter',
+    run = function()
+      pcall(require('nvim-treesitter.install').update { with_sync = true })
+    end,
+  }
 
-  use 'szw/vim-maximizer'
-  use 'puremourning/vimspector'
-  use {'lervag/vimtex', ft = 'tex', opt = true}
-  use { "ellisonleao/gruvbox.nvim" }
-  use {'akinsho/nvim-toggleterm.lua'}
+  use { -- Additional text objects via treesitter
+    'nvim-treesitter/nvim-treesitter-textobjects',
+    after = 'nvim-treesitter',
+  }
+
+  -- Git related plugins
+  use 'tpope/vim-fugitive'
+  use 'tpope/vim-rhubarb'
+  use 'lewis6991/gitsigns.nvim'
+
+  use 'navarasu/onedark.nvim' -- Theme inspired by Atom
+  use 'nvim-lualine/lualine.nvim' -- Fancier statusline
+  use 'lukas-reineke/indent-blankline.nvim' -- Add indentation guides even on blank lines
+  use 'numToStr/Comment.nvim' -- "gc" to comment visual regions/lines
+  use 'tpope/vim-sleuth' -- Detect tabstop and shiftwidth automatically
 
   -- Fuzzy Finder (files, lsp, etc)
   use { 'nvim-telescope/telescope.nvim', branch = '0.1.x', requires = { 'nvim-lua/plenary.nvim' } }
 
   -- Fuzzy Finder Algorithm which requires local dependencies to be built. Only load if `make` is available
-  use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make', cond = vim.fn.executable "make" == 1 }
+  use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make', cond = vim.fn.executable 'make' == 1 }
+
+  -- Add custom plugins to packer from ~/.config/nvim/lua/custom/plugins.lua
+  local has_plugins, plugins = pcall(require, 'custom.plugins')
+  if has_plugins then
+    plugins(use)
+  end
 
   if is_bootstrap then
     require('packer').sync()
   end
 end)
--- stylua: ignore end
 
 -- When we are bootstrapping a configuration, it doesn't
 -- make sense to execute the rest of the init.lua.
@@ -86,62 +92,11 @@ vim.api.nvim_create_autocmd('BufWritePost', {
 -- [[ Setting options ]]
 -- See `:help vim.o`
 
-vim.o.encoding = 'utf-8'
-vim.o.fileencoding = 'utf-8'
-vim.o.cursorline = true
-vim.o.showmode = false
-vim.o.wrap = false
-vim.o.backup = false
-vim.o.writebackup = false
-vim.o.swapfile = false
-vim.o.clipboard = 'unnamedplus'
-vim.o.hidden = true
-
-
-vim.o.joinspaces = false
-vim.o.scrolloff = 8
-vim.o.sidescroll = 8
-vim.o.splitbelow = true
-vim.o.splitright = true
-vim.o.timeoutlen = 1000
-vim.o.updatetime = 100
-vim.o.virtualedit = 'block'
--- vim.o.iskeyword = vim.o.iskeyword + '-'
-
--- Performance
-vim.o.lazyredraw = true
--- Search
-vim.o.inccommand = 'nosplit' -- show substitutions incrementally
-vim.o.ignorecase = true
-vim.o.smartcase = true
-vim.o.wildignore = '.git,**/node_modules/**';
-vim.o.wildignorecase = true
-
--- Tabs
-vim.o.expandtab = true
-vim.o.shiftwidth = 4
-vim.o.softtabstop = 4
-vim.o.tabstop = 4
-
--- Shortmess
--- vim.o.shortmess = vim.o.shortmess + 'A' + 'c' + 'I' + 'W'
-vim.o.smarttab = true
-vim.o.expandtab = true
-vim.o.smartindent = true
-vim.o.compatible = false
-vim.o.errorbells = false
-vim.o.startofline = false
-vim.o.undofile = true
-vim.o.tw = 119
-vim.o.fo = 't'
-vim.o.spelllang = 'en,cjk'
-
 -- Set highlight on search
 vim.o.hlsearch = false
 
 -- Make line numbers default
 vim.wo.number = true
-vim.o.relativenumber = true
 
 -- Enable mouse mode
 vim.o.mouse = 'a'
@@ -162,6 +117,7 @@ vim.wo.signcolumn = 'yes'
 
 -- Set colorscheme
 vim.o.termguicolors = true
+vim.cmd [[colorscheme onedark]]
 
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
@@ -177,55 +133,9 @@ vim.g.maplocalleader = ' '
 -- See `:help vim.keymap.set()`
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 
-
--- Buffers
-vim.keymap.set({ 'n' }, '<Tab>', '<cmd>bn<CR>')
-vim.keymap.set({ 'n' }, '<S-Tab>', '<cmd>bp<CR>')
-vim.keymap.set({ 'n' }, '<space>bd', '<cmd>bd<CR>')
-
--- Command
-vim.keymap.set({ 'i' }, 'jk', '<Esc>')
-vim.keymap.set({ 'c' }, '<C-h>', '<Left>')
-vim.keymap.set({ 'c' }, '<C-j>', '<Down>')
-vim.keymap.set({ 'c' }, '<C-k>', '<Up>')
-vim.keymap.set({ 'c' }, '<C-l>', '<Right>')
-
--- Window
-vim.keymap.set({ 'n' }, '<C-h>', '<cmd>wincmd h<CR>')
-vim.keymap.set({ 'n' }, '<C-j>', '<cmd>wincmd j<CR>')
-vim.keymap.set({ 'n' }, '<C-k>', '<cmd>wincmd k<CR>')
-vim.keymap.set({ 'n' }, '<C-l>', '<cmd>wincmd l<CR>')
-
--- Spelling
-vim.keymap.set({ 'n' }, '<F11>', ':set spell!<cr>', { silent = true })
-
--- Maximizer
-vim.keymap.set({ 'n' }, '<leader>dm', ':MaximizerToggle!<CR>')
-
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
-
--- Vimspector
-vim.keymap.set({ 'n' },'<leader>dd', ':call vimspector#Launch()<CR>', {noremap = true})
-vim.keymap.set({ 'n' },'<leader>dc', ':call win_gotoid(g:vimspector_session_windows.code)<CR> :MaximizerToggle!<CR>', {noremap = true})
-vim.keymap.set({ 'n' },'<leader>dt', ':call win_gotoid(g:vimspector_session_windows.tabpage)<CR> :MaximizerToggle!<CR>', {noremap = true})
-vim.keymap.set({ 'n' },'<leader>dv', ':call win_gotoid(g:vimspector_session_windows.variables)<CR> :MaximizerToggle!<CR>', {noremap = true})
-vim.keymap.set({ 'n' },'<leader>dw', ':call win_gotoid(g:vimspector_session_windows.watches)<CR> :MaximizerToggle!<CR>', {noremap = true})
-vim.keymap.set({ 'n' },'<leader>ds', ':call win_gotoid(g:vimspector_session_windows.stack_trace)<CR> :MaximizerToggle!<CR>', {noremap = true})
-vim.keymap.set({ 'n' },'<leader>do', ':call win_gotoid(g:vimspector_session_windows.output)<CR> :MaximizerToggle!<CR>', {noremap = true})
-vim.keymap.set({ 'n' },'<leader>de', ':call vimspector#Reset()<CR>', {noremap = true})
-
-vim.keymap.set({ 'n' },'<leader>dl', '<Plug>VimspectorStepInto', {noremap = false})
-vim.keymap.set({ 'n' },'<leader>dj', '<Plug>VimspectorStepOver', {noremap = false})
-vim.keymap.set({ 'n' },'<leader>dk', '<Plug>VimspectorStepOut', {noremap = false})
-vim.keymap.set({ 'n' },'<leader>dr', '<Plug>VimspectorRestart', {noremap = false})
-vim.keymap.set({ 'n' },'<leader>d<space>', ':call vimspector#Continue()<CR>', {noremap = true})
-
-vim.keymap.set({ 'n' },'<leader>dg', '<Plug>VimspectorRunToCursor', {noremap = false})
-vim.keymap.set({ 'n' },'<leader>db', '<Plug>VimspectorToggleBreakpoint', {noremap = false})
-vim.keymap.set({ 'n' },'<Leader>di', '<Plug>VimspectorBalloonEval', {noremap = false})
-
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
@@ -298,7 +208,7 @@ vim.keymap.set('n', '<leader>/', function()
   })
 end, { desc = '[/] Fuzzily search in current buffer]' })
 
-vim.keymap.set('n', '<leader>ff', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
+vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
 vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
 vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
 vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
@@ -394,8 +304,9 @@ local on_attach = function(_, bufnr)
   nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
 
   nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
-  nmap('gi', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
-  nmap('gr', require('telescope.builtin').lsp_references)
+  nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+  nmap('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
+  nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
   nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
   nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
 
@@ -405,7 +316,6 @@ local on_attach = function(_, bufnr)
 
   -- Lesser used LSP functionality
   nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-  nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
   nmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
   nmap('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
   nmap('<leader>wl', function()
@@ -422,20 +332,21 @@ local on_attach = function(_, bufnr)
   end, { desc = 'Format current buffer with LSP' })
 end
 
--- nvim-cmp supports additional completion capabilities
-local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
-
 -- Setup mason so it can manage external tooling
 require('mason').setup()
 
 -- Enable the following language servers
-local servers = {'pylsp'}
--- local servers = {'pylsp', 'sumneko_lua' }
+-- Feel free to add/remove any LSPs that you want here. They will automatically be installed
+local servers = { 'clangd', 'rust_analyzer', 'pyright', 'tsserver', 'sumneko_lua', 'gopls' }
 
 -- Ensure the servers above are installed
 require('mason-lspconfig').setup {
   ensure_installed = servers,
 }
+
+-- nvim-cmp supports additional completion capabilities
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
 for _, lsp in ipairs(servers) do
   require('lspconfig')[lsp].setup {
@@ -443,6 +354,9 @@ for _, lsp in ipairs(servers) do
     capabilities = capabilities,
   }
 end
+
+-- Turn on lsp status information
+require('fidget').setup()
 
 -- Example custom configuration for lua
 --
@@ -514,45 +428,6 @@ cmp.setup {
     { name = 'luasnip' },
   },
 }
-
--- Vimspector
-vim.g.vimspector_install_gadgets = { 'debugpy', 'vscode-cpptools', 'CodeLLDB' }
-
--- Toggleterm
-require'toggleterm'.setup {
-  size = 75,
-  open_mapping = '<A-t>',
-  shade_filetypes = {},
-  shade_terminals = true,
-  shading_factor = 1, -- the degree by which to darken to terminal colour, default: 1 for dark backgrounds, 3 for light
-  start_in_insert = true,
-  persist_size = true,
-  direction = 'float',
-}
-
-require("gruvbox").setup({
-  undercurl = true,
-  underline = true,
-  bold = true,
-  italic = true,
-  strikethrough = true,
-  invert_selection = false,
-  invert_signs = false,
-  invert_tabline = false,
-  invert_intend_guides = false,
-  inverse = true, -- invert background for search, diffs, statuslines and errors
-  contrast = "", -- can be "hard", "soft" or empty string
-  dim_inactive = false,
-  transparent_mode = false,
-  palette_overrides = {
-        dark0 = "#141c21",
-    },
-  overrides = {
-        SignColumn = {bg = "#141c21"},
-        CursorLineNr = {fg = "#FF0000"}
-    }
-})
-vim.cmd("colorscheme gruvbox")
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
